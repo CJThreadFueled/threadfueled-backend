@@ -3,3 +3,5 @@ database.sqlite
 .env
 *.log
 .DS_Store
+uploads/
+.railway/
