@@ -316,7 +316,19 @@ app.post('/api/customer/approve/:code', async (req, res) => {
     await db.updateProjectStatus(project.id, 'approved');
 
     // Send notification to admin/designer
-    // TODO: Add admin notification email
+    try {
+      await emailService.sendDesignerNotification({
+        to: process.env.EMAIL_USER, // Designer email
+        projectTitle: project.project_title,
+        approvalCode: project.approval_code,
+        action: 'approved',
+        customerName: project.customer_name
+      });
+      console.log('✅ Designer notified of approval');
+    } catch (emailError) {
+      console.error('⚠️ Designer notification failed:', emailError.message);
+      // Don't fail the approval if email fails
+    }
 
     res.json({
       success: true,
@@ -379,7 +391,20 @@ app.post('/api/customer/modify/:code', async (req, res) => {
     });
 
     // Send notification to designer
-    // TODO: Add designer notification email
+    try {
+      await emailService.sendDesignerNotification({
+        to: process.env.EMAIL_USER, // Designer email
+        projectTitle: project.project_title,
+        approvalCode: project.approval_code,
+        action: 'modified',
+        customerName: project.customer_name,
+        modifications: modifications
+      });
+      console.log('✅ Designer notified of modification request');
+    } catch (emailError) {
+      console.error('⚠️ Designer notification failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
 
     res.json({
       success: true,
